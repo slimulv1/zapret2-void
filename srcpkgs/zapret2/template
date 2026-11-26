@@ -1,7 +1,10 @@
 # Template file for 'zapret2'
+# Upstream author: bol-van (GitHub login; upstream publishes no public name/email)
+# Source: https://github.com/bol-van/zapret2
+# Full upstream version tag: v${version} (used in distfiles/changelog)
 pkgname=zapret2
 version=1.0.8
-revision=4
+revision=5
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
@@ -11,10 +14,11 @@ nostrip=yes
 nodebug=yes
 depends="nftables"
 conf_files="/etc/zapret2/config"
-short_desc="Anti-DPI desync tool (nfqws2) with nftables NFQUEUE"
-maintainer="herb <herb@localhost>"
-license="custom:upstream repo declares no license"
+short_desc="Anti-DPI desync tool (nfqws2) by bol-van with nftables NFQUEUE"
+maintainer="slimulv1 <slimulv1@users.noreply.github.com>"
+license="custom:upstream repository declares no license (no LICENSE file)"
 homepage="https://github.com/bol-van/zapret2"
+changelog="https://github.com/bol-van/zapret2/releases/tag/v${version}"
 distfiles="https://github.com/bol-van/zapret2/releases/download/v${version}/zapret2-v${version}.tar.gz"
 checksum=fbd2c39941eea436dce5df4ab51fd19163f31d6b6b49131195400cc552fe77ff
 
