@@ -19,10 +19,14 @@ distfiles="https://github.com/bol-van/zapret2/releases/download/v${version}/zapr
 checksum=fbd2c39941eea436dce5df4ab51fd19163f31d6b6b49131195400cc552fe77ff
 
 do_install() {
-    # Cài toàn bộ tree upstream: init.d/sysv/{zapret2,functions}, common/, lua/,
-    # binaries/... — script khởi động của上游 cần các file này.
+    # Chỉ copy các phần script khởi động cần (common/, init.d/sysv/, lua/,
+    # ipset/, binaries/linux-x86_64/); copy '*' sẽ kéo binary lạ làm lỗi shlibs.
     vmkdir opt/zapret2
-    vcopy "*" opt/zapret2/
+    vcopy "common/*" opt/zapret2/common/
+    vcopy "init.d/sysv/*" opt/zapret2/init.d/sysv/
+    vcopy "lua/*" opt/zapret2/lua/
+    vcopy "ipset/*" opt/zapret2/ipset/
+    vcopy "binaries/linux-x86_64/*" opt/zapret2/binaries/linux-x86_64/
     vmkdir opt/zapret2/nfq2
     ln -s ../binaries/linux-x86_64/nfqws2 "${DESTDIR}/opt/zapret2/nfq2/nfqws2"
     ln -s ../binaries/linux-x86_64/mdig "${DESTDIR}/opt/zapret2/nfq2/mdig"
