@@ -6,6 +6,9 @@ revision=1
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
 archs="x86_64*"
+# Upstream binaries are already stripped static ELFs; xbps-src strip hook fails on them.
+nostrip=yes
+nodebug=yes
 depends="nftables"
 conf_files="/etc/zapret2/config"
 short_desc="Anti-DPI desync tool (nfqws2) with nftables NFQUEUE"
