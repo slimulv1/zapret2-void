@@ -12,6 +12,7 @@ srcpkgs/zapret2/
   update.sh                             # kiểm tra release mới, cập nhật version/checksum
   INSTALL                               # scriptlet: tự restart zapret2 sau khi nâng gói
   files/zapret2/{run,finish,config}     # runit service + profile DPI
+  REMOVE                                 # dọn symlink /var/service/zapret2 khi gỡ gói
 scripts/install-zapret2.sh              # installer client (two-step, giống xlibre)
 99-repository-zapret2.conf              # file repo conf
 ```
@@ -71,7 +72,18 @@ nft list table inet zapret2
 
 - Repo bên thứ ba, không được Void Linux hậu thuẫn; chỉ dùng khi tin maintainer.
 - Upstream không khai báo license (`license: null`, không có file LICENSE), nên template dùng `license="custom:..."`.
-- `PULL_PUSH` bắt buộc: `GITHUB_TOKEN` không kích hoạt workflow khác khi push.
+- `PULL_PUSH` là tuỳ chọn: workflow dùng `GITHUB_TOKEN` và gọi `gh workflow run build.yml` rõ ràng sau khi commit.
+
+## Lưu ý khi nâng/gỡ
+
+- `conf_files="/etc/zapret2/config"`: xbps giữ config của bạn và ghi bản mới vào
+  `/etc/zapret2/config.new-<pkgver>`. So sánh với bản tham chiếu
+  `/usr/share/examples/zapret2-config` rồi quyết định thay thế; **không tự xoá**
+  file `.new` vì đó có thể là cấu hình bạn đang chờ áp dụng.
+- Gói khai báo `system_accounts="tpws"` và `depends="nftables iproute2"`,
+  nên cài trên Void sạch vẫn đủ user và công cụ.
+- Khi `xbps-remove zapret2`, scriptlet `REMOVE` sẽ xoá symlink
+  `/var/service/zapret2` nếu nó trỏ tới `/etc/sv/zapret2`.
 
 ## Disclaimer
 

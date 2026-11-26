@@ -1,0 +1,15 @@
+#!/bin/sh
+# REMOVE scriptlet. Giống INSTALL, xbps-src chỉ bọc file này vào script generic
+# nên phải tự dispatch theo $ACTION.
+
+remove_service_link() {
+    # /var/service/zapret2 do installer/README tạo, KHÔNG phải file của package.
+    # Nếu không dọn ở đây, sau khi remove gói sẽ còn symlink dang (service "down").
+    [ -L /var/service/zapret2 ] || return 0
+    [ "$(readlink /var/service/zapret2)" = /etc/sv/zapret2 ] || return 0
+    rm -f /var/service/zapret2
+}
+
+case "${ACTION:-$1}" in
+    pre) remove_service_link ;;
+esac

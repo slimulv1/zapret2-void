@@ -4,7 +4,7 @@
 # Full upstream version tag: v${version} (used in distfiles/changelog)
 pkgname=zapret2
 version=1.0.8
-revision=6
+revision=7
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
@@ -12,7 +12,9 @@ archs="x86_64*"
 # Upstream binaries are already stripped static ELFs; xbps-src strip hook fails on them.
 nostrip=yes
 nodebug=yes
-depends="nftables"
+depends="nftables iproute2"
+# Tạo user hệ thống do xbps quản lý (fresh install không có installer cũ tạo sẵn).
+system_accounts="tpws"
 conf_files="/etc/zapret2/config"
 short_desc="Anti-DPI desync tool (nfqws2) by bol-van with nftables NFQUEUE"
 maintainer="slimulv1 <slimulv1@users.noreply.github.com>"
@@ -42,6 +44,8 @@ do_install() {
     ln -s ../binaries/linux-x86_64/ip2net "${DESTDIR}/opt/zapret2/nfq2/ip2net"
     : > "${DESTDIR}/opt/zapret2/.xbps-zapret2"
     vinstall "$FILESDIR/zapret2/config" 644 etc/zapret2 config
+    # Bản tham chiếu để user diff khi profile thay đổi giữa các release.
+    vsconf "$FILESDIR/zapret2/config" zapret2-config
     ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
     # Không dùng vsv(): nó đưa symlink `supervise' vào package, xung đột với
     # thư mục supervise do runit tạo lúc chạy trên hệ thống đã cài installer cũ.
