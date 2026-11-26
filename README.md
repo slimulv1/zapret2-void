@@ -1,90 +1,47 @@
 # zapret2-void
 
-Repo void-packages overlay cho **zapret2** ([bol-van/zapret2](https://github.com/bol-van/zapret2)), mô phỏng cơ chế của [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre): khi upstream ra bản mới, workflow tự bump `template`, build gói `.xbps`, ký và đăng release. Trên Void Linux, chỉ cần thêm repo — **lệnh cập nhật hệ thống sẽ tự nâng zapret2 cùng các gói khác**.
+Overlay void-packages cho [zapret2](https://github.com/bol-van/zapret2), theo mô hình [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre): upstream ra bản mới → workflow bump template, build, ký, đăng release. Trên Void, lệnh cập nhật hệ thống tự nâng zapret2.
 
-## Cấu trúc
+[Release mới nhất](https://github.com/slimulv1/zapret2-void/releases/latest)
 
-```
-.github/workflows/update-template.yml   # cron 04:00 UTC: chạy srcpkgs/*/update.sh, commit/push
-.github/workflows/build.yml             # push srcpkgs/** -> build + ký + release .xbps
-srcpkgs/zapret2/
-  template                              # build_style=fetch, archs=x86_64*, conf_files
-  update.sh                             # kiểm tra release mới, cập nhật version/checksum
-  INSTALL                               # scriptlet: tự restart zapret2 sau khi nâng gói
-  files/zapret2/{run,finish,config}     # runit service + profile DPI
-  REMOVE                                 # dọn symlink /var/service/zapret2 khi gỡ gói
-scripts/install-zapret2.sh              # installer client (two-step, giống xlibre)
-99-repository-zapret2.conf              # file repo conf
-```
-
-## Secrets GitHub (Settings → Secrets and variables → Actions)
-
-| Secret | Mục đích |
-|---|---|
-| `PULL_PUSH` | **Tuỳ chọn**: PAT có quyền `repo` + `workflow`. Nếu không set, workflow dùng `GITHUB_TOKEN` và kích hoạt build rõ ràng bằng `gh workflow run`. |
-| `PRIV_KEY` | Private RSA PEM (`ssh-keygen -t rsa -b 4096 -m PEM -f private.pem`). **Không commit.** |
-| `SIGN_PASS` | Passphrase của private key (nếu có). |
-
-## Cài đặt trên Void Linux
+## Cài đặt
 
 ```sh
 wget -O - https://raw.githubusercontent.com/slimulv1/zapret2-void/main/scripts/install-zapret2.sh \
   | tee install-zapret2.sh && chmod +x install-zapret2.sh && sudo ./install-zapret2.sh
 ```
 
-Script thêm `/etc/xbps.d/99-repository-zapret2.conf`, sync repo, cài gói `zapret2` và bật service runit. Dùng kiểu two-step để stdin rảnh cho câu hỏi fingerprint của xbps.
-
-Giống xlibre, repo nên publish public key tại `repo-keys/x86_64/<fingerprint>.plist`. Khi đó cài không cần trả lời fingerprint:
+Script thêm repo, sync, cài gói và bật service. Lần đầu xbps hỏi fingerprint → gõ `y`. Nếu maintainer đã đăng public key:
 
 ```sh
-PUBKEY_URL=https://raw.githubusercontent.com/slimulv1/zapret2-void/main/repo-keys/x86_64/<fingerprint>.plist \
-  sudo ./install-zapret2.sh
+PUBKEY_URL=<url-to-*.plist> sudo ./install-zapret2.sh
 ```
 
-Nếu chưa có key, bỏ qua biến này và nhấn `y` khi xbps hỏi fingerprint lần đầu.
-
-## Tự cập nhật như xlibre
-
-Không cần cron riêng. Chạy lệnh cập nhật Void như thường:
+## Cập nhật & kiểm tra
 
 ```sh
-sudo xbps-install -Syu
-```
-
-(hoặc nút **Update all** trong OctoXBPS). Khi repo có gói `zapret2` phiên bản mới, xbps tự nâng nó cùng mọi gói khác. File `srcpkgs/zapret2/INSTALL` có scriptlet `post_upgrade`: nếu service đang chạy và route mặc định còn tốt, nó tự `sv restart zapret2` để dùng binary mới ngay. Nếu bạn đang offline hoặc service đang tắt, scriptlet bỏ qua — bạn có thể restart thủ công sau.
-
-Kiểm tra sau khi update:
-
-```sh
+sudo xbps-install -Syu          # hoặc "Update all" trong OctoXBPS
 sv status zapret2
 /opt/zapret2/nfq2/nfqws2 --version
 nft list table inet zapret2
 ```
 
-## Cơ chế phía repo
+## Cơ chế
 
-1. `update-template.yml` chạy daily, `find srcpkgs -mindepth 2 -maxdepth 2 -name update.sh`.
-2. `update.sh`: gọi `gh api repos/bol-van/zapret2/releases/latest`; kiểm tra tag numeric, không draft/prerelease, chặn downgrade, yêu cầu release cũ hơn 24h (`SOAK_SECONDS`), tải đúng **release asset** `zapret2-vX.tar.gz`, tính SHA-256, đối chiếu `asset.digest` của API, rồi sửa `version`, `revision=1`, `checksum` trong `template`. (`sha256sum.txt` của zapret2 chỉ chứa hash binary bên trong, không có hash archive.)
-3. Commit/push kích hoạt `build.yml`: build cho `x86_64` glibc + musl, ký repo/packages, ghi checksum, đăng GitHub Release.
-4. Client `xbps-install -Syu` thấy bản mới và nâng gói.
+- `update-template.yml` (04:00 UTC): chạy `srcpkgs/zapret2/update.sh` — tag numeric, không draft/prerelease, chặn downgrade, soak 24h, hash đúng release asset và đối chiếu `asset.digest` (sha256sum.txt của zapret2 chỉ có hash binary bên trong).
+- `build.yml`: build `x86_64` glibc + musl, ký repo/packages, đăng release `v<version>` (dọn asset cũ cùng tag/arch).
+- Scriptlet `INSTALL` tự `sv restart zapret2` sau upgrade khi service đang chạy; `REMOVE` chỉ xoá symlink `/var/service/zapret2` khi gỡ gói thật, không phải lúc upgrade.
 
-## Lưu ý
+## Gói
 
-- Repo bên thứ ba, không được Void Linux hậu thuẫn; chỉ dùng khi tin maintainer.
-- Upstream không khai báo license (`license: null`, không có file LICENSE), nên template dùng `license="custom:..."`.
-- `PULL_PUSH` là tuỳ chọn: workflow dùng `GITHUB_TOKEN` và gọi `gh workflow run build.yml` rõ ràng sau khi commit.
+`depends="nftables iproute2"` · `system_accounts="tpws"` · `conf_files="/etc/zapret2/config"` · `archs="x86_64*"` · binary static nên `nostrip`.
 
-## Lưu ý khi nâng/gỡ
+Tác giả upstream: `bol-van` (không có tên/email công khai). Nguồn: `github.com/bol-van/zapret2`. Upstream không có file LICENSE → `license="custom:..."`.
 
-- `conf_files="/etc/zapret2/config"`: xbps giữ config của bạn và ghi bản mới vào
-  `/etc/zapret2/config.new-<pkgver>`. So sánh với bản tham chiếu
-  `/usr/share/examples/zapret2/zapret2-config` rồi quyết định thay thế; **không tự xoá**
-  file `.new` vì đó có thể là cấu hình bạn đang chờ áp dụng.
-- Gói khai báo `system_accounts="tpws"` và `depends="nftables iproute2"`,
-  nên cài trên Void sạch vẫn đủ user và công cụ.
-- Khi `xbps-remove zapret2`, scriptlet `REMOVE` sẽ xoá symlink
-  `/var/service/zapret2` nếu nó trỏ tới `/etc/sv/zapret2`.
+Config của bạn được giữ khi nâng; bản mới lưu ở `/etc/zapret2/config.new-<pkgver>`. So sánh với `/usr/share/examples/zapret2/zapret2-config` rồi quyết định — **đừng tự xoá file `.new`**.
 
-## Disclaimer
+## Maintainer
 
-Repo không chính thức, không liên kết với Void Linux hay bol-van/zapret2.
+Secrets: `PRIV_KEY` (RSA PEM), `SIGN_PASS` (tuỳ chọn), `PULL_PUSH` (tuỳ chọn — nếu thiếu, dùng `GITHUB_TOKEN` và `gh workflow run build.yml`). Không commit private key.
+
+Repo bên thứ ba, không chính thức, không liên kết Void Linux hay bol-van.
