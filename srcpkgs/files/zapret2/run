@@ -1,0 +1,8 @@
+#!/bin/sh
+exec 2>&1
+# nftables service nạp ruleset trước khi zapret2 attach NFQUEUE.
+while ! nft list table inet void_filter >/dev/null 2>&1; do
+    sleep 1
+done
+/opt/zapret2/init.d/sysv/zapret2 start
+exec chpst -b zapret2 sleep infinity

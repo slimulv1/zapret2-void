@@ -1,0 +1,17 @@
+#!/bin/sh
+# xbps scriptlet: dùng lại binary mới ngay sau khi nâng gói.
+# Chỉ restart nếu service đang chạy VÀ mạng đã sẵn sàng, để tránh làm đứt DNS
+# trong lúc xbps-install -Syu đang xử lý các gói khác.
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+
+restart_zapret2_if_running() {
+    case "$(sv status zapret2 2>/dev/null)" in
+        run:*) ;;
+        *) return 0 ;;
+    esac
+    ip route get 1.1.1.1 >/dev/null 2>&1 || return 0
+    sv restart zapret2 >/dev/null 2>&1 || return 0
+}
+
+post_install() { restart_zapret2_if_running; }
+post_upgrade() { restart_zapret2_if_running; }
