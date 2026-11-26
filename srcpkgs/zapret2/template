@@ -21,6 +21,7 @@ checksum=fbd2c39941eea436dce5df4ab51fd19163f31d6b6b49131195400cc552fe77ff
 do_install() {
     # Cài toàn bộ tree upstream: init.d/sysv/{zapret2,functions}, common/, lua/,
     # binaries/... — script khởi động của上游 cần các file này.
+    vmkdir opt/zapret2
     vcopy "*" opt/zapret2/
     vmkdir opt/zapret2/nfq2
     ln -s ../binaries/linux-x86_64/nfqws2 "${DESTDIR}/opt/zapret2/nfq2/nfqws2"
