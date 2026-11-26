@@ -181,7 +181,7 @@ jobs:
           gh release view "$RELEASE_TAG" --repo "$REPO_OWNER/$REPO_NAME" \
             --json assets --jq '.assets[].name' 2>/dev/null | while IFS= read -r asset; do
             case "$asset" in
-              *"-${ARCH}.xbps"|*"-${ARCH}.xbps."*|"${ARCH}-repodata")
+              *".${ARCH}.xbps"|*".${ARCH}.xbps."*|"${ARCH}-repodata")
                 gh release delete-asset "$RELEASE_TAG" "$asset" \
                   --repo "$REPO_OWNER/$REPO_NAME" --yes || true
                 ;;
