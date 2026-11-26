@@ -1,7 +1,6 @@
 name: 🏗️ Build zapret2 for VOID linux
 
 env:
-  TAG: workflow-${{ github.run_number }}
   SHA: ${{ github.sha }}
 
 on:
@@ -34,7 +33,6 @@ jobs:
       volumes:
         - /dev:/dev
     env:
-      TAG: 'workflow-${{ github.run_number }}'
       SHA: '${{ github.sha }}'
       ARCH: '${{ matrix.config.arch }}'
       XBPS_TARGET_ARCH: '${{ matrix.config.arch }}'
@@ -168,13 +166,20 @@ jobs:
           name: ${{ matrix.config.arch }}-repodata
           path: ./hostdir/binpkgs
 
+      - name: 🏷️ Xác định tag release theo version zapret2
+        run: |
+          ver=$(sed -n 's/^version=//p' srcpkgs/zapret2/template)
+          [ -n "$ver" ] || { echo 'template thiếu version'; exit 1; }
+          echo "RELEASE_TAG=v${ver}" >> "$GITHUB_ENV"
+          echo "Release tag: v${ver}"
+
       - name: 🚀 Release
         uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ env.TAG }}
-          tag_name: ${{ env.TAG }}
+          name: ${{ env.RELEASE_TAG }}
+          tag_name: ${{ env.RELEASE_TAG }}
           files: |
             ./hostdir/binpkgs/*.xbps
             ./hostdir/binpkgs/*.sig2
