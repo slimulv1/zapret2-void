@@ -20,7 +20,7 @@ do_install() {
     vmkdir opt/zapret2/lua
     vcopy "binaries/linux-x86_64/*" opt/zapret2/
     vcopy "lua/*" opt/zapret2/lua/
-    vinstall "$FILESDIR/config" 644 etc/zapret2 config
+    vinstall "$FILESDIR/zapret2/config" 644 etc/zapret2 config
     ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
     vsv zapret2
 }

@@ -124,8 +124,12 @@ jobs:
           for pkg in $(cat /tmp/templates); do
             echo "🏗️ Building $pkg for $ARCH..."
             sudo -Eu builder ./xbps-src pkg -j"$(nproc)" -m "masterdir-${ARCH}" -A "$ARCH" "$pkg" \
-              || printf 'Failed building %s!\n' "$pkg"
+              || { printf 'Failed building %s!\n' "$pkg"; exit 1; }
           done
+          if ! ls hostdir/binpkgs/*.xbps >/dev/null 2>&1; then
+            echo "Không có gói .xbps nào được tạo"
+            exit 1
+          fi
 
       - name: 🧾 Clean & sign
         working-directory: ./hostdir/binpkgs
