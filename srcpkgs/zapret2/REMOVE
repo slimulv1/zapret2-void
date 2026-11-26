@@ -11,5 +11,7 @@ remove_service_link() {
 }
 
 case "${ACTION:-$1}" in
-    pre) remove_service_link ;;
+    # xbps cũng chạy REMOVE của gói CŨ trong lúc upgrade. Chỉ xoá symlink khi
+    # thực sự gỡ gói (UPDATE=no); nếu không, upgrade sẽ làm service biến mất.
+    pre) [ "${UPDATE:-$4}" = yes ] || remove_service_link ;;
 esac
