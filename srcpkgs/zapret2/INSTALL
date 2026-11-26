@@ -26,3 +26,12 @@ pre_install() {
 
 post_install() { restart_zapret2_if_running; }
 post_upgrade() { restart_zapret2_if_running; }
+
+# xbps-src chỉ bọc script này vào INSTALL generic (chạy trigger); chính file
+# phải tự dispatch theo $ACTION — nếu không, các hàm trên không bao giờ chạy.
+case "${ACTION:-$1}" in
+    pre) pre_install ;;
+    post)
+        if [ "${UPDATE:-$4}" = yes ]; then post_upgrade; else post_install; fi
+        ;;
+esac
