@@ -78,7 +78,7 @@ nft list table inet zapret2
 
 - `conf_files="/etc/zapret2/config"`: xbps giữ config của bạn và ghi bản mới vào
   `/etc/zapret2/config.new-<pkgver>`. So sánh với bản tham chiếu
-  `/usr/share/examples/zapret2-config` rồi quyết định thay thế; **không tự xoá**
+  `/usr/share/examples/zapret2/zapret2-config` rồi quyết định thay thế; **không tự xoá**
   file `.new` vì đó có thể là cấu hình bạn đang chờ áp dụng.
 - Gói khai báo `system_accounts="tpws"` và `depends="nftables iproute2"`,
   nên cài trên Void sạch vẫn đủ user và công cụ.
