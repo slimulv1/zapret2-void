@@ -33,8 +33,10 @@ Khi client chạy `xbps-install -S`, xbps sẽ hỏi chấp nhận fingerprint c
 ## Cài đặt trên Void Linux (client)
 
 ```sh
-wget -O - https://raw.githubusercontent.com/slimulv1/zapret2-void/main/scripts/install-zapret2.sh | sudo bash
+wget -O - https://raw.githubusercontent.com/slimulv1/zapret2-void/main/scripts/install-zapret2.sh \
+  | tee install-zapret2.sh && chmod +x install-zapret2.sh && sudo ./install-zapret2.sh
 ```
+(Kiểu two-step như xlibre để script không chiếm stdin khi xbps hỏi fingerprint.)
 
 Script sẽ: thêm `/etc/xbps.d/99-repository-zapret2.conf`, sync repo (bạn nhấn `y` khi hỏi fingerprint), cài `zapret2`, bật service runit, và cài cron `/etc/cron.d/zapret2-autoupdate` để tự cập nhật lúc 03:20 mỗi ngày.
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# One-line installer: wget -O - https://raw.githubusercontent.com/slimulv1/zapret2-void/main/scripts/install-zapret2.sh | sudo bash
+# Installer: wget -O - <this-file-url> | tee install-zapret2.sh && chmod +x install-zapret2.sh && sudo ./install-zapret2.sh
 set -Eeuo pipefail
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 
