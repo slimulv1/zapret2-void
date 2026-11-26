@@ -87,6 +87,7 @@ jobs:
           chown -R builder:builder .
           git diff-tree -r --no-renames --name-only --diff-filter=AM "$latest_sha" "$SHA" -- 'srcpkgs/**' \
             | cut -d/ -f 2 | uniq \
+            | while read -r p; do [ -f "srcpkgs/$p/template" ] && echo "$p"; done \
             | xargs sudo -Eu builder ./xbps-src sort-dependencies | tee /tmp/templates
 
       - name: 🛠️ Setup void-packages

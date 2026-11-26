@@ -73,7 +73,19 @@ jobs:
           token: ${{ secrets.PULL_PUSH || github.token }}
       - uses: actions/download-artifact@v8
         with:
-          path: ./srcpkgs
+          path: ./artifacts
+      - name: Restore templates into srcpkgs/<pkg>
+        run: |
+          # upload-artifact(path: srcpkgs/<pkg>) gửi nội dung thư mục, nên
+          # download thẳng vào ./srcpkgs sẽ làm phẳng cây. Đặt vào ./artifacts
+          # rồi copy lại đúng cấu trúc srcpkgs/<pkg>/.
+          for d in artifacts/*; do
+            [ -d "$d" ] || continue
+            pkg=$(basename "$d")
+            mkdir -p "srcpkgs/$pkg"
+            cp -a "$d/." "srcpkgs/$pkg/"
+          done
+          rm -rf artifacts
       - name: Commit if changed
         id: check
         run: |
