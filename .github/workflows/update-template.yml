@@ -6,6 +6,10 @@ on:
     - cron: '0 4 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   find-autoupdates:
     runs-on: ubuntu-26.04
@@ -44,7 +48,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          token: ${{ secrets.PULL_PUSH }}
+          token: ${{ secrets.PULL_PUSH || github.token }}
       - uses: dcarbone/install-jq-action@v4
       - name: Run update.sh
         run: bash "${{ matrix.pkg.path }}"
@@ -66,7 +70,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          token: ${{ secrets.PULL_PUSH }}
+          token: ${{ secrets.PULL_PUSH || github.token }}
       - uses: actions/download-artifact@v8
         with:
           path: ./srcpkgs
@@ -86,5 +90,11 @@ jobs:
         if: steps.check.outputs.has_updates == 'true'
         uses: ad-m/github-push-action@v1.3.0
         with:
-          github_token: ${{ secrets.PULL_PUSH }}
+          github_token: ${{ secrets.PULL_PUSH || github.token }}
           branch: ${{ github.ref }}
+
+      - name: Trigger build
+        if: steps.check.outputs.has_updates == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build.yml --repo ${{ github.repository }} --ref ${{ github.ref_name }}

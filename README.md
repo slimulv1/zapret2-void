@@ -20,7 +20,7 @@ scripts/install-zapret2.sh              # installer client (two-step, giống xl
 
 | Secret | Mục đích |
 |---|---|
-| `PULL_PUSH` | PAT có quyền `repo` + `workflow` để workflow commit/push và kích hoạt build. |
+| `PULL_PUSH` | **Tuỳ chọn**: PAT có quyền `repo` + `workflow`. Nếu không set, workflow dùng `GITHUB_TOKEN` và kích hoạt build rõ ràng bằng `gh workflow run`. |
 | `PRIV_KEY` | Private RSA PEM (`ssh-keygen -t rsa -b 4096 -m PEM -f private.pem`). **Không commit.** |
 | `SIGN_PASS` | Passphrase của private key (nếu có). |
 
