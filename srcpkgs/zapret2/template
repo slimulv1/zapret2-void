@@ -22,6 +22,11 @@ do_install() {
     # Chỉ copy các phần script khởi động cần (common/, init.d/sysv/, lua/,
     # ipset/, binaries/linux-x86_64/); copy '*' sẽ kéo binary lạ làm lỗi shlibs.
     vmkdir opt/zapret2
+    vmkdir opt/zapret2/common
+    vmkdir opt/zapret2/init.d/sysv
+    vmkdir opt/zapret2/lua
+    vmkdir opt/zapret2/ipset
+    vmkdir opt/zapret2/binaries/linux-x86_64
     vcopy "common/*" opt/zapret2/common/
     vcopy "init.d/sysv/*" opt/zapret2/init.d/sysv/
     vcopy "lua/*" opt/zapret2/lua/
