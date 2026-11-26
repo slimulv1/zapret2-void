@@ -19,6 +19,9 @@ pre_install() {
     if [ -d /opt/zapret2 ] && [ ! -e /opt/zapret2/.xbps-zapret2 ]; then
         mv /opt/zapret2 "/opt/zapret2.pre-xbps.$(date +%Y%m%d%H%M%S)"
     fi
+    if [ -d /etc/sv/zapret2 ] && [ ! -e /etc/sv/zapret2/.xbps-zapret2 ]; then
+        mv /etc/sv/zapret2 "/etc/sv/zapret2.pre-xbps.$(date +%Y%m%d%H%M%S)"
+    fi
 }
 
 post_install() { restart_zapret2_if_running; }

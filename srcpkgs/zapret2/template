@@ -1,7 +1,7 @@
 # Template file for 'zapret2'
 pkgname=zapret2
 version=1.0.8
-revision=2
+revision=3
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
@@ -40,4 +40,5 @@ do_install() {
     vinstall "$FILESDIR/zapret2/config" 644 etc/zapret2 config
     ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
     vsv zapret2
+    : > "${DESTDIR}/etc/sv/zapret2/.xbps-zapret2"
 }
