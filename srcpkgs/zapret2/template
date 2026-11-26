@@ -1,7 +1,7 @@
 # Template file for 'zapret2'
 pkgname=zapret2
 version=1.0.8
-revision=3
+revision=4
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
@@ -39,6 +39,12 @@ do_install() {
     : > "${DESTDIR}/opt/zapret2/.xbps-zapret2"
     vinstall "$FILESDIR/zapret2/config" 644 etc/zapret2 config
     ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
-    vsv zapret2
+    # Không dùng vsv(): nó đưa symlink `supervise' vào package, xung đột với
+    # thư mục supervise do runit tạo lúc chạy trên hệ thống đã cài installer cũ.
+    vmkdir etc/sv/zapret2
+    vmkdir etc/sv/zapret2/log
+    vinstall "$FILESDIR/zapret2/run" 755 etc/sv/zapret2 run
+    vinstall "$FILESDIR/zapret2/finish" 755 etc/sv/zapret2 finish
+    vinstall "$FILESDIR/zapret2/log/run" 755 etc/sv/zapret2/log run
     : > "${DESTDIR}/etc/sv/zapret2/.xbps-zapret2"
 }
