@@ -20,7 +20,16 @@ mkdir -p /etc/xbps.d
 printf 'repository=%s\n' "$REPO_URL" > /etc/xbps.d/99-repository-zapret2.conf
 chmod 0644 /etc/xbps.d/99-repository-zapret2.conf
 
-say '2/4  Sync repo (nhan y khi duoc hoi fingerprint)'
+say '2/4  Nap public key repo (neu co) va sync'
+# Giong xlibre: neu maintainer da publish repo-keys/x86_64/<fingerprint>.plist,
+# truyen PUBKEY_URL de nap key truoc, khong can tra loi fingerprint bang tay.
+if [ -n "${PUBKEY_URL:-}" ]; then
+    mkdir -p /var/db/xbps/keys
+    keyfile="/var/db/xbps/keys/${PUBKEY_URL##*/}"
+    curl -fL --proto '=https' --tlsv1.2 --max-time 60 "$PUBKEY_URL" -o "$keyfile" \
+        || die 'khong tai duoc public key repo'
+    chmod 0644 "$keyfile"
+fi
 xbps-install -S
 
 say '3/4  Cai zapret2'

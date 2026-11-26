@@ -31,7 +31,16 @@ wget -O - https://raw.githubusercontent.com/slimulv1/zapret2-void/main/scripts/i
   | tee install-zapret2.sh && chmod +x install-zapret2.sh && sudo ./install-zapret2.sh
 ```
 
-Script thêm `/etc/xbps.d/99-repository-zapret2.conf`, sync repo (bạn nhấn `y` khi hỏi fingerprint), cài gói `zapret2` và bật service runit. Dùng kiểu two-step để stdin rảnh cho câu hỏi fingerprint của xbps.
+Script thêm `/etc/xbps.d/99-repository-zapret2.conf`, sync repo, cài gói `zapret2` và bật service runit. Dùng kiểu two-step để stdin rảnh cho câu hỏi fingerprint của xbps.
+
+Giống xlibre, repo nên publish public key tại `repo-keys/x86_64/<fingerprint>.plist`. Khi đó cài không cần trả lời fingerprint:
+
+```sh
+PUBKEY_URL=https://raw.githubusercontent.com/slimulv1/zapret2-void/main/repo-keys/x86_64/<fingerprint>.plist \
+  sudo ./install-zapret2.sh
+```
+
+Nếu chưa có key, bỏ qua biến này và nhấn `y` khi xbps hỏi fingerprint lần đầu.
 
 ## Tự cập nhật như xlibre
 
