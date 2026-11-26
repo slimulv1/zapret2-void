@@ -3,27 +3,23 @@
 [![Build](https://github.com/slimulv1/zapret2-void/actions/workflows/build.yml/badge.svg)](https://github.com/slimulv1/zapret2-void/actions/workflows/build.yml)
 [![Auto update](https://github.com/slimulv1/zapret2-void/actions/workflows/update-template.yml/badge.svg)](https://github.com/slimulv1/zapret2-void/actions/workflows/update-template.yml)
 [![Release](https://img.shields.io/github/v/release/slimulv1/zapret2-void)](https://github.com/slimulv1/zapret2-void/releases/latest)
-[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-Overlay void-packages cho [zapret2](https://github.com/bol-van/zapret2), theo mô hình [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre): upstream ra bản mới → workflow bump template, build, ký, đăng release. Trên Void, lệnh cập nhật hệ thống tự nâng zapret2.
+Overlay Void cho zapret2, auto-update kiểu xlibre.
 
-## Cài đặt
+## Cài
 
 ```sh
 wget -O - https://raw.githubusercontent.com/slimulv1/zapret2-void/main/scripts/install-zapret2.sh \
   | tee install-zapret2.sh && chmod +x install-zapret2.sh && sudo ./install-zapret2.sh
 ```
 
-Script thêm repo, sync, cài gói và bật service. Lần đầu xbps hỏi fingerprint → gõ `y`. Nếu maintainer đã đăng public key:
+Fingerprint lần đầu: `y`. Có key: `PUBKEY_URL=<url> sudo ./install-zapret2.sh`.
+
+## Update & kiểm tra
 
 ```sh
-PUBKEY_URL=<url-to-*.plist> sudo ./install-zapret2.sh
-```
-
-## Cập nhật & kiểm tra
-
-```sh
-sudo xbps-install -Syu          # hoặc "Update all" trong OctoXBPS
+sudo xbps-install -Syu
 sv status zapret2
 /opt/zapret2/nfq2/nfqws2 --version
 nft list table inet zapret2
@@ -31,26 +27,20 @@ nft list table inet zapret2
 
 ## Cơ chế
 
-- `update-template.yml` (04:00 UTC): chạy `srcpkgs/zapret2/update.sh` — tag numeric, không draft/prerelease, chặn downgrade, soak 24h, hash đúng release asset và đối chiếu `asset.digest` (sha256sum.txt của zapret2 chỉ có hash binary bên trong).
-- `build.yml`: build `x86_64` glibc + musl, ký repo/packages, đăng release `v<version>` (dọn asset cũ cùng tag/arch).
-- Scriptlet `INSTALL` tự `sv restart zapret2` sau upgrade khi service đang chạy; `REMOVE` chỉ xoá symlink `/var/service/zapret2` khi gỡ gói thật, không phải lúc upgrade.
+- 04:00 UTC: `update.sh` bump template — tag numeric, không draft/prerelease, chặn downgrade, soak 24h, hash release asset + đối chiếu `asset.digest`.
+- Push `srcpkgs/**` → build x86_64 glibc/musl, ký, đăng release `v<version>`.
+- `INSTALL`: restart service sau upgrade. `REMOVE`: xoá symlink khi gỡ gói (bỏ qua lúc upgrade).
 
 ## Gói
 
-`depends="nftables iproute2"` · `system_accounts="tpws"` · `conf_files="/etc/zapret2/config"` · `archs="x86_64*"` · binary static nên `nostrip`.
+`nftables iproute2` · `system_accounts=tpws` · `conf_files=/etc/zapret2/config` · `archs=x86_64*` · `nostrip`.
 
-Tác giả upstream: `bol-van` (không có tên/email công khai). Nguồn: `github.com/bol-van/zapret2`. Upstream không có file LICENSE → `license="custom:..."`.
+Config giữ bản cũ; bản mới ở `/etc/zapret2/config.new-<pkgver>`, mẫu tại `/usr/share/examples/zapret2/zapret2-config`.
 
-Config của bạn được giữ khi nâng; bản mới lưu ở `/etc/zapret2/config.new-<pkgver>`. So sánh với `/usr/share/examples/zapret2/zapret2-config` rồi quyết định — **đừng tự xoá file `.new`**.
+## License & secrets
 
-## License
+Repo: GPL-3.0-or-later. Upstream zapret2 không có license.
 
-Repo này (workflow, script, template) dùng **GPL-3.0-or-later** — xem `LICENSE`.
+Secrets: `PRIV_KEY` (bắt buộc), `SIGN_PASS`, `PULL_PUSH` (tuỳ chọn). Không commit private key.
 
-Upstream `bol-van/zapret2` không có LICENSE công khai; archive/binary của họ **không** bị cấp phép lại bởi file này. Metadata gói vì thế vẫn giữ `license="custom:upstream repository declares no license (no LICENSE file)"`.
-
-## Maintainer
-
-Secrets: `PRIV_KEY` (RSA PEM), `SIGN_PASS` (tuỳ chọn), `PULL_PUSH` (tuỳ chọn — nếu thiếu, dùng `GITHUB_TOKEN` và `gh workflow run build.yml`). Không commit private key.
-
-Repo bên thứ ba, không chính thức, không liên kết Void Linux hay bol-van.
+Repo bên thứ ba, không chính thức.
