@@ -3,6 +3,7 @@
 [![Build](https://github.com/slimulv1/zapret2-void/actions/workflows/build.yml/badge.svg)](https://github.com/slimulv1/zapret2-void/actions/workflows/build.yml)
 [![Auto update](https://github.com/slimulv1/zapret2-void/actions/workflows/update-template.yml/badge.svg)](https://github.com/slimulv1/zapret2-void/actions/workflows/update-template.yml)
 [![Release](https://img.shields.io/github/v/release/slimulv1/zapret2-void)](https://github.com/slimulv1/zapret2-void/releases/latest)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
 Overlay void-packages cho [zapret2](https://github.com/bol-van/zapret2), theo mô hình [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre): upstream ra bản mới → workflow bump template, build, ký, đăng release. Trên Void, lệnh cập nhật hệ thống tự nâng zapret2.
 
@@ -41,6 +42,12 @@ nft list table inet zapret2
 Tác giả upstream: `bol-van` (không có tên/email công khai). Nguồn: `github.com/bol-van/zapret2`. Upstream không có file LICENSE → `license="custom:..."`.
 
 Config của bạn được giữ khi nâng; bản mới lưu ở `/etc/zapret2/config.new-<pkgver>`. So sánh với `/usr/share/examples/zapret2/zapret2-config` rồi quyết định — **đừng tự xoá file `.new`**.
+
+## License
+
+Repo này (workflow, script, template) dùng **GPL-3.0-or-later** — xem `LICENSE`.
+
+Upstream `bol-van/zapret2` không có LICENSE công khai; archive/binary của họ **không** bị cấp phép lại bởi file này. Metadata gói vì thế vẫn giữ `license="custom:upstream repository declares no license (no LICENSE file)"`.
 
 ## Maintainer
 
