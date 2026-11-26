@@ -1,8 +1,10 @@
 # zapret2-void
 
-Overlay void-packages cho [zapret2](https://github.com/bol-van/zapret2), theo mô hình [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre): upstream ra bản mới → workflow bump template, build, ký, đăng release. Trên Void, lệnh cập nhật hệ thống tự nâng zapret2.
+[![Build](https://github.com/slimulv1/zapret2-void/actions/workflows/build.yml/badge.svg)](https://github.com/slimulv1/zapret2-void/actions/workflows/build.yml)
+[![Auto update](https://github.com/slimulv1/zapret2-void/actions/workflows/update-template.yml/badge.svg)](https://github.com/slimulv1/zapret2-void/actions/workflows/update-template.yml)
+[![Release](https://img.shields.io/github/v/release/slimulv1/zapret2-void)](https://github.com/slimulv1/zapret2-void/releases/latest)
 
-[Release mới nhất](https://github.com/slimulv1/zapret2-void/releases/latest)
+Overlay void-packages cho [zapret2](https://github.com/bol-van/zapret2), theo mô hình [xlibre-void/xlibre](https://github.com/xlibre-void/xlibre): upstream ra bản mới → workflow bump template, build, ký, đăng release. Trên Void, lệnh cập nhật hệ thống tự nâng zapret2.
 
 ## Cài đặt
 
