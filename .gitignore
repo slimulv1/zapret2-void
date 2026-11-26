@@ -1,0 +1,16 @@
+# void-packages build artifacts
+hostdir/
+masterdir*/
+builddir/
+# signing keys — NEVER commit private keys
+*.pem
+*.key
+key.pem
+private.pem
+# local scratch
+*.log
+*.xbps
+*.sig2
+*.sha256sum
+*.sha512sum
+.DS_Store

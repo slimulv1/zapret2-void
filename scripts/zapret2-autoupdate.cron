@@ -1,0 +1,5 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=""
+LC_ALL=C
+20 3 * * * root /usr/local/sbin/zapret2-pkg-autoupdate >> /var/log/zapret2-autoupdate.log 2>&1

@@ -1,0 +1,25 @@
+# Template file for 'zapret2'
+pkgname=zapret2
+version=1.0.8
+revision=1
+build_style=fetch
+# Upstream ships static x86_64 binaries; no i686 asset exists.
+archs="x86_64*"
+depends="nftables"
+conf_files="/etc/zapret2/config"
+short_desc="Anti-DPI desync tool (nfqws2) with nftables NFQUEUE"
+maintainer="herb <herb@localhost>"
+license="custom:upstream repo declares no license"
+homepage="https://github.com/bol-van/zapret2"
+distfiles="https://github.com/bol-van/zapret2/releases/download/v${version}/zapret2-v${version}.tar.gz"
+checksum=fbd2c39941eea436dce5df4ab51fd19163f31d6b6b49131195400cc552fe77ff
+
+do_install() {
+    vmkdir opt/zapret2
+    vmkdir opt/zapret2/lua
+    vcopy "binaries/linux-x86_64/*" opt/zapret2/
+    vcopy "lua/*" opt/zapret2/lua/
+    vinstall "$FILESDIR/config" 644 etc/zapret2 config
+    ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
+    vsv zapret2
+}

@@ -1,0 +1,90 @@
+name: 🔄 Update templates
+run-name: "Automated update of ${{ github.ref_name }} by @${{ github.actor }}"
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  find-autoupdates:
+    runs-on: ubuntu-26.04
+    if: ${{ github.ref == 'refs/heads/main' }}
+    outputs:
+      matrix: ${{ steps.collect.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dcarbone/install-jq-action@v4
+      - name: Find autoupdate scripts
+        id: collect
+        run: |
+          updates=$(find srcpkgs -mindepth 2 -maxdepth 2 -type f -name update.sh)
+          if [ -z "$updates" ]; then
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          while read -r p; do
+            d=$(dirname "$p")
+            n=$(basename "$d")
+            printf '{"dir":"%s","name":"%s","path":"%s"}\n' "$d" "$n" "$p"
+          done <<< "$updates" | jq -cs > matrix.json
+          echo "matrix=$(cat matrix.json)" >> "$GITHUB_OUTPUT"
+
+  update-versions:
+    name: update ${{ matrix.pkg.name }}
+    runs-on: ubuntu-26.04
+    needs: find-autoupdates
+    if: ${{ needs.find-autoupdates.outputs.matrix != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: ${{ fromJson(needs.find-autoupdates.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          token: ${{ secrets.PULL_PUSH }}
+      - uses: dcarbone/install-jq-action@v4
+      - name: Run update.sh
+        run: bash "${{ matrix.pkg.path }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ${{ matrix.pkg.name }}
+          path: ${{ matrix.pkg.dir }}
+
+  commit-updates:
+    runs-on: ubuntu-26.04
+    needs: [update-versions]
+    if: always()
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          token: ${{ secrets.PULL_PUSH }}
+      - uses: actions/download-artifact@v8
+        with:
+          path: ./srcpkgs
+      - name: Commit if changed
+        id: check
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Automated update" --signoff
+            echo "has_updates=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_updates=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Push
+        if: steps.check.outputs.has_updates == 'true'
+        uses: ad-m/github-push-action@v1.3.0
+        with:
+          github_token: ${{ secrets.PULL_PUSH }}
+          branch: ${{ github.ref }}
