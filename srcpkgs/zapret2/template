@@ -4,7 +4,7 @@
 # Full upstream version tag: v${version} (used in distfiles/changelog)
 pkgname=zapret2
 version=1.0.8
-revision=10
+revision=11
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
@@ -12,13 +12,13 @@ archs="x86_64*"
 # Upstream binaries are already stripped static ELFs; xbps-src strip hook fails on them.
 nostrip=yes
 nodebug=yes
-depends="nftables iproute2"
+depends="nftables iproute2 python3"
 # Tạo user hệ thống do xbps quản lý (fresh install không có installer cũ tạo sẵn).
 system_accounts="tpws"
 # Khớp user do installer cũ tạo trên máy này, tránh cảnh báo 'unable to modify'.
 tpws_homedir="/home/tpws"
 tpws_shell="/bin/false"
-conf_files="/etc/zapret2/config /etc/nftables.conf"
+conf_files="/etc/zapret2/config /etc/nftables.conf /etc/zapret2/dns-candidates /etc/cron.d/zapret2-dns-autoset"
 short_desc="Anti-DPI desync tool (nfqws2) by bol-van with nftables NFQUEUE"
 maintainer="slimulv1 <slimulv1@users.noreply.github.com>"
 license="custom:upstream repository declares no license (no LICENSE file)"
@@ -52,6 +52,13 @@ do_install() {
     vsconf "$FILESDIR/zapret2/config" zapret2-config
     vsconf "$FILESDIR/nftables.conf" nftables.conf
     vsconf "$FILESDIR/dnscrypt-proxy.toml" dnscrypt-proxy.toml
+    vsconf "$FILESDIR/strategies.json" strategies.json
+    # Tự quét/chọn DNS nhanh nhất (giống ghostline), chạy cron 15 phút.
+    vmkdir usr/lib/zapret2/dns-autoset
+    vinstall "$FILESDIR/dns-autoset.py" 755 usr/lib/zapret2/dns-autoset dns-autoset.py
+    vinstall "$FILESDIR/dns-candidates" 644 etc/zapret2 dns-candidates
+    vsconf "$FILESDIR/dns-candidates" dns-candidates
+    vinstall "$FILESDIR/dns-autoset.cron" 644 etc/cron.d zapret2-dns-autoset
     ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
     # Không dùng vsv(): nó đưa symlink `supervise' vào package, xung đột với
     # thư mục supervise do runit tạo lúc chạy trên hệ thống đã cài installer cũ.

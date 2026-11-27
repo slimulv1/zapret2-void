@@ -1,0 +1,9 @@
+# name|DoH URL — lấy cảm hứng từ hashcott/ghostline lists/seed.json
+# Tên bên trái phải là resolver name có trong public-resolvers.md của dnscrypt-proxy.
+cloudflare|https://cloudflare-dns.com/dns-query
+google|https://dns.google/dns-query
+# quad9-doh-ip4-port443-nofilter-pri|https://dns10.quad9.net/dns-query  # HTTP 505 từ mạng này
+adguard-dns-unfiltered-doh|https://unfiltered.adguard-dns.com/dns-query
+# mullvad-doh|https://dns.mullvad.net/dns-query  # đóng kết nối TLS từ mạng này
+dns.sb|https://doh.dns.sb/dns-query
+controld-unfiltered|https://freedns.controld.com/p0
