@@ -388,8 +388,9 @@ def main():
     if cfg.get("mode") == "single":
         chosen = chosen[:1]
 
-    # No restart for latency-only movement: ghostline-style ID-set diff.
-    if not repair and chosen == names_now:
+    # wp2 tự xếp lại theo RTT, nên THỨ TỰ trong server_names không quan trọng.
+    # Chỉ restart khi TẬP HỢP resolver đổi (ghostline ID-set diff), không phải reorder.
+    if not repair and sorted(chosen) == sorted(names_now):
         log("Giữ pool %s (không restart)" % chosen)
         entry.update({"results": results_all, "last_scan": now})
         state[key] = entry

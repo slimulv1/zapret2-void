@@ -4,7 +4,7 @@
 # Full upstream version tag: v${version} (used in distfiles/changelog)
 pkgname=zapret2
 version=1.0.8
-revision=13
+revision=14
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
