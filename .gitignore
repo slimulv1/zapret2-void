@@ -7,6 +7,9 @@ builddir/
 *.key
 key.pem
 private.pem
+__pycache__/
+*.pyc
+
 # local scratch
 *.log
 *.xbps

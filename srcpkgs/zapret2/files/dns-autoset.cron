@@ -2,4 +2,4 @@ SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 MAILTO=""
 LC_ALL=C
-*/15 * * * * root /usr/bin/python3 /usr/lib/zapret2/dns-autoset/dns-autoset.py >> /var/log/zapret2-dns-autoset.log 2>&1
+*/5 * * * * root /usr/bin/python3 /usr/lib/zapret2/dns-autoset/dns-autoset.py >> /var/log/zapret2-dns-autoset.log 2>&1

@@ -30,15 +30,15 @@ nft list table inet zapret2
 - 04:00 UTC: `update.sh` bump template — tag numeric, không draft/prerelease, chặn downgrade, soak 24h, hash release asset + đối chiếu `asset.digest`.
 - Push `srcpkgs/**` → build x86_64 glibc/musl, ký, đăng release `v<version>`.
 - `INSTALL`: restart service sau upgrade. `REMOVE`: xoá symlink khi gỡ gói (bỏ qua lúc upgrade).
-- Cron 15 phút: `dns-autoset.py` quét DoH song song, loại answer poisoned, chọn latency thấp nhất; đổi `server_names` của dnscrypt-proxy sau 2 lần liên tiếp + ngưỡng 20ms. NM DNS vẫn `127.0.0.1` nên không ngắt mạng.
+- Cron 5 phút: `dns-autoset.py` quét DoH **song song**, loại poisoned, đo median/p90/jitter/loss, cache theo mạng (24h, ≥90% coverage). Chỉ sửa `server_names` khi **set resolver thay đổi** hoặc DNS local hỏng; thay latency không restart. Mặc định `mode=pool`: Top-3 + `lb_strategy='wp2'` → dnscrypt-proxy tự chọn server tốt hơn cho mỗi query. `mode=single` trong `/etc/zapret2/dns-autoset.conf` nếu bạn vẫn muốn một DNS chính. NM DNS vẫn `127.0.0.1`.
 
 ## Gói
 
-`nftables iproute2 python3` · `system_accounts=tpws` · `conf_files=/etc/zapret2/config /etc/nftables.conf /etc/zapret2/dns-candidates /etc/cron.d/zapret2-dns-autoset` · `archs=x86_64*` · `nostrip`.
+`nftables iproute2 python3` · `system_accounts=tpws` · `conf_files=/etc/zapret2/config /etc/nftables.conf /etc/zapret2/dns-candidates /etc/zapret2/dns-autoset.conf /etc/cron.d/zapret2-dns-autoset` · `archs=x86_64*` · `nostrip`.
 
 Đóng gói sẵn: profile zapret2, `/etc/nftables.conf` (bảng `void_filter`), mẫu DNS tại `/usr/share/examples/zapret2/dnscrypt-proxy.toml`. Scriptlet tự thay nftables.conf nếu thiếu `void_filter` (có backup). Không tự đổi NetworkManager DNS — chạy `sudo bash scripts/set-dns.sh` nếu cần.
 
-Sửa danh sách DNS tại `/etc/zapret2/dns-candidates` (mẫu Ghostline); chạy ngay: `sudo python3 /usr/lib/zapret2/dns-autoset/dns-autoset.py`; xem thử không đổi: `--dry-run`. Profile zapret2 mẫu của Ghostline tại `/usr/share/examples/zapret2/strategies.json`.
+Sửa DNS: `/etc/zapret2/dns-candidates` (danh sách) và `/etc/zapret2/dns-autoset.conf` (`mode`, `pool_size`). Chạy ngay: `sudo python3 /usr/lib/zapret2/dns-autoset/dns-autoset.py`; xem thử: `--dry-run`. Trạng thái: `/var/log/zapret2-dns-autoset.log`. Profile DPI mẫu của Ghostline: `/usr/share/examples/zapret2/strategies.json`.
 
 Config giữ bản cũ; bản mới ở `/etc/zapret2/config.new-<pkgver>`, mẫu tại `/usr/share/examples/zapret2/zapret2-config`.
 
