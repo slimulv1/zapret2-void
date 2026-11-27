@@ -223,11 +223,13 @@ def main():
         save_state({"current": current, "latency": cur_lat, "streak": 0, "last_scan": time.time()})
         log("Chưa đủ ngưỡng cải thiện %d ms; giữ %s" % (MIN_IMPROVE_MS, current))
         return 0
-    streak = state.get("streak", 0) + 1 if state.get("best_candidate") == best["name"] else 1
+    # Không yêu cầu CÙNG một tên ở 2 lần: hai resolver nhanh có thể đổi vị trí
+    # qua lại. Chỉ cần liên tiếp CONFIRM lần đều có ứng viên vượt ngưỡng.
+    streak = state.get("streak", 0) + 1
     if streak < CONFIRM:
         save_state({"current": current, "latency": cur_lat, "streak": streak,
                     "best_candidate": best["name"], "last_scan": time.time()})
-        log("Ứng viên %s (%d ms) lần %d/%d" % (best["name"], best["latency"], streak, CONFIRM))
+        log("Có ứng viên tốt hơn: %s (%d ms), lần %d/%d" % (best["name"], best["latency"], streak, CONFIRM))
         return 0
     if apply_server(best["name"]):
         save_state({"current": best["name"], "latency": best["latency"], "streak": 0, "last_scan": time.time()})
