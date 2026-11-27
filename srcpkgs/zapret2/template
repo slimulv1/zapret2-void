@@ -4,7 +4,7 @@
 # Full upstream version tag: v${version} (used in distfiles/changelog)
 pkgname=zapret2
 version=1.0.8
-revision=9
+revision=10
 # Không dùng build_style=fetch: nó chỉ copy tarball vào wrksrc mà KHÔNG giải nén.
 # Để trống build_style để hook do-extract mặc định rename top-level zapret2-vX thành $wrksrc.
 # Upstream ships static x86_64 binaries; no i686 asset exists.
@@ -18,7 +18,7 @@ system_accounts="tpws"
 # Khớp user do installer cũ tạo trên máy này, tránh cảnh báo 'unable to modify'.
 tpws_homedir="/home/tpws"
 tpws_shell="/bin/false"
-conf_files="/etc/zapret2/config"
+conf_files="/etc/zapret2/config /etc/nftables.conf"
 short_desc="Anti-DPI desync tool (nfqws2) by bol-van with nftables NFQUEUE"
 maintainer="slimulv1 <slimulv1@users.noreply.github.com>"
 license="custom:upstream repository declares no license (no LICENSE file)"
@@ -47,8 +47,11 @@ do_install() {
     ln -s ../binaries/linux-x86_64/ip2net "${DESTDIR}/opt/zapret2/nfq2/ip2net"
     : > "${DESTDIR}/opt/zapret2/.xbps-zapret2"
     vinstall "$FILESDIR/zapret2/config" 644 etc/zapret2 config
+    vinstall "$FILESDIR/nftables.conf" 644 etc nftables.conf
     # Bản tham chiếu để user diff khi profile thay đổi giữa các release.
     vsconf "$FILESDIR/zapret2/config" zapret2-config
+    vsconf "$FILESDIR/nftables.conf" nftables.conf
+    vsconf "$FILESDIR/dnscrypt-proxy.toml" dnscrypt-proxy.toml
     ln -sf /etc/zapret2/config "${DESTDIR}/opt/zapret2/config"
     # Không dùng vsv(): nó đưa symlink `supervise' vào package, xung đột với
     # thư mục supervise do runit tạo lúc chạy trên hệ thống đã cài installer cũ.

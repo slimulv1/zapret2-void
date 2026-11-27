@@ -33,7 +33,9 @@ nft list table inet zapret2
 
 ## Gói
 
-`nftables iproute2` · `system_accounts=tpws` · `conf_files=/etc/zapret2/config` · `archs=x86_64*` · `nostrip`.
+`nftables iproute2` · `system_accounts=tpws` · `conf_files=/etc/zapret2/config /etc/nftables.conf` · `archs=x86_64*` · `nostrip`.
+
+Đóng gói sẵn: profile zapret2, `/etc/nftables.conf` (bảng `void_filter`), mẫu DNS tại `/usr/share/examples/zapret2/dnscrypt-proxy.toml`. Scriptlet tự thay nftables.conf nếu thiếu `void_filter` (có backup). Không tự đổi NetworkManager DNS — chạy `sudo bash scripts/set-dns.sh` nếu cần.
 
 Config giữ bản cũ; bản mới ở `/etc/zapret2/config.new-<pkgver>`, mẫu tại `/usr/share/examples/zapret2/zapret2-config`.
 

@@ -13,6 +13,27 @@ restart_zapret2_if_running() {
     sv restart zapret2 >/dev/null 2>&1 || return 0
 }
 
+apply_network_config() {
+    # nftables.conf: chỉ thay khi chưa có bảng void_filter (run script cần bảng này).
+    if [ ! -f /etc/nftables.conf ] || ! grep -q 'table inet void_filter' /etc/nftables.conf; then
+        [ -f /etc/nftables.conf ] && cp -a /etc/nftables.conf "/etc/nftables.conf.bak.$(date +%Y%m%d%H%M%S)"
+        cp /usr/share/examples/zapret2/nftables.conf /etc/nftables.conf
+        chmod 0644 /etc/nftables.conf
+        if [ -x /etc/sv/nftables/run ] && [ ! -e /var/service/nftables ]; then
+            ln -s /etc/sv/nftables /var/service/nftables
+        fi
+        [ -e /var/service/nftables ] && sv restart nftables >/dev/null 2>&1 || true
+    fi
+    # dnscrypt-proxy: chỉ đặt config khi binary có và config chưa tồn tại.
+    if command -v dnscrypt-proxy >/dev/null 2>&1 && [ ! -f /etc/dnscrypt-proxy.toml ]; then
+        cp /usr/share/examples/zapret2/dnscrypt-proxy.toml /etc/dnscrypt-proxy.toml
+        chmod 0644 /etc/dnscrypt-proxy.toml
+        if [ -x /etc/sv/dnscrypt-proxy/run ] && [ ! -e /var/service/dnscrypt-proxy ]; then
+            ln -s /etc/sv/dnscrypt-proxy /var/service/dnscrypt-proxy
+        fi
+    fi
+}
+
 pre_install() {
     # Migration từ installer cũ (/opt/zapret2 không do xbps quản lý).
     # Đời sang backup để tránh xung đột unpack (mdig/, ip2net/, nfqws2...).
@@ -24,8 +45,8 @@ pre_install() {
     fi
 }
 
-post_install() { restart_zapret2_if_running; }
-post_upgrade() { restart_zapret2_if_running; }
+post_install() { apply_network_config; restart_zapret2_if_running; }
+post_upgrade() { apply_network_config; restart_zapret2_if_running; }
 
 # xbps-src chỉ bọc script này vào INSTALL generic (chạy trigger); chính file
 # phải tự dispatch theo $ACTION — nếu không, các hàm trên không bao giờ chạy.
